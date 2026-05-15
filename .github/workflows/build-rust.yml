@@ -64,3 +64,44 @@ jobs:
         with:
           name: patched-rust-toolchain
           path: rust/build/x86_64-unknown-linux-gnu/stage2
+
+  validate-toolchain:
+    needs: build-rust
+    runs-on: ubuntu-latest
+
+    container:
+      image: debian:bookworm-slim
+
+    steps:
+      - name: Install dependencies
+        run: |
+          apt update
+          apt install -y curl build-essential
+
+      - name: Download toolchain
+        uses: actions/download-artifact@v4
+        with:
+          name: patched-rust-toolchain
+          path: /toolchain
+
+      - name: Install rustup
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+
+      - name: Add cargo to PATH
+        run: |
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Link patched toolchain
+        run: |
+          rustup toolchain link patched /toolchain
+
+      - name: Activate toolchain
+        run: |
+          rustup override set patched
+
+      - name: Validate toolchain
+        run: |
+          cargo new hello
+          cd hello
+          cargo build
