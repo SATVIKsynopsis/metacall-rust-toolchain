@@ -83,6 +83,11 @@ jobs:
         with:
           name: patched-rust-toolchain
           path: /toolchain
+          
+      - name: Fix permissions
+        run: |
+          chmod -R +x /toolchain/bin || true
+          chmod -R +x /toolchain/lib/rustlib/*/bin || true
 
       - name: Install rustup
         run: |
