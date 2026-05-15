@@ -83,11 +83,12 @@ jobs:
         with:
           name: patched-rust-toolchain
           path: /toolchain
-          
+
       - name: Fix permissions
         run: |
-          chmod -R +x /toolchain/bin || true
-          chmod -R +x /toolchain/lib/rustlib/*/bin || true
+          chmod -R 755 /toolchain || true
+          find /toolchain -type f -name "rustc" -exec chmod +x {} \;
+          find /toolchain -type f -name "cargo" -exec chmod +x {} \;
 
       - name: Install rustup
         run: |
@@ -107,6 +108,17 @@ jobs:
 
       - name: Validate toolchain
         run: |
+          rustc -Vv
+          cargo -V
+
           cargo new hello
           cd hello
-          cargo build
+
+          cat > src/main.rs <<EOF
+          fn main() {
+              println!("patched rust toolchain works");
+          }
+          EOF
+
+          cargo build -v
+          ./target/debug/hello
