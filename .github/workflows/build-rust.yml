@@ -43,3 +43,18 @@ jobs:
         run: |
           cd rust
           grep -R "tls-model=initial-exec" src || true
+
+      - name: Patch TLS flag
+        run: |
+          cd rust
+          sed -i '/tls-model=initial-exec/d' src/bootstrap/src/bin/rustc.rs
+
+      - name: Verify patch
+        run: |
+          cd rust
+          grep -R "tls-model=initial-exec" src || true
+
+      - name: Build Rust
+        run: |
+          cd rust
+          python3 x.py build compiler/rustc
