@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: debian:bookworm-slim
+      image: ubuntu:24.04
 
     steps:
       - name: Install dependencies
