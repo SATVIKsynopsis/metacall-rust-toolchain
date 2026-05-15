@@ -57,4 +57,4 @@ jobs:
       - name: Build Rust
         run: |
           cd rust
-          python3 x.py build compiler/rustc
+          python3 x.py build --stage 2 compiler/rustc
