@@ -1,0 +1,45 @@
+name: Build Patched Rust Toolchain
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-rust:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            git \
+            curl \
+            python3 \
+            build-essential \
+            cmake \
+            ninja-build
+
+      - name: Clone Rust
+        run: |
+          git clone https://github.com/rust-lang/rust.git
+          cd rust
+          git checkout master
+
+      - name: Configure Rust
+        run: |
+          cd rust
+          cat > config.toml <<EOF
+          [llvm]
+          download-ci-llvm = true
+
+          [build]
+          extended = true
+
+          [rust]
+          codegen-units = 1
+          EOF
+
+      - name: Find TLS flag
+        run: |
+          cd rust
+          grep -R "tls-model=initial-exec" src || true
