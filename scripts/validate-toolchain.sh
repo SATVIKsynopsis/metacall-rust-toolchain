@@ -5,7 +5,11 @@ apt update
 apt install -y \
     curl \
     build-essential \
-    xz-utils
+    xz-utils \
+    cmake \
+    ninja-build \
+    pkg-config \
+    libssl-dev
 
 curl https://sh.rustup.rs -sSf | sh -s -- -y
 
