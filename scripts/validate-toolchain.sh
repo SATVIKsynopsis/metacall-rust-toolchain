@@ -18,9 +18,9 @@ export PATH="$HOME/.cargo/bin:$PATH"
 mkdir -p /rust-dist
 mkdir -p /patched-toolchain
 
-tar -xf /toolchain/rustc-*.tar.xz -C /rust-dist
-tar -xf /toolchain/rust-std-*.tar.xz -C /rust-dist
-tar -xf /toolchain/cargo-*.tar.xz -C /rust-dist
+tar -xf /toolchain/dist/rustc-*.tar.xz -C /rust-dist
+tar -xf /toolchain/dist/rust-std-*.tar.xz -C /rust-dist
+tar -xf /toolchain/dist/cargo-*.tar.xz -C /rust-dist
 
 /rust-dist/rustc-*/install.sh --prefix=/patched-toolchain
 /rust-dist/rust-std-*/install.sh --prefix=/patched-toolchain
