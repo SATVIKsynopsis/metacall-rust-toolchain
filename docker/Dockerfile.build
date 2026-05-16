@@ -1,0 +1,9 @@
+FROM ubuntu:24.04
+
+WORKDIR /workspace
+
+COPY scripts/build-toolchain.sh /build-toolchain.sh
+
+RUN chmod +x /build-toolchain.sh
+
+CMD ["/build-toolchain.sh"]

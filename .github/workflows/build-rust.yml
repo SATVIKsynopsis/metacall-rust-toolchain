@@ -8,132 +8,58 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install dependencies
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build toolchain Docker image
         run: |
-          sudo apt update
-          sudo apt install -y \
-            git \
-            curl \
-            python3 \
-            build-essential \
-            cmake \
-            ninja-build
+          docker build \
+            -f docker/Dockerfile.build \
+            -t patched-rust-build .
 
-      - name: Clone Rust
+      - name: Run toolchain build
         run: |
-          git clone https://github.com/rust-lang/rust.git
-          cd rust
-          git checkout main
+          docker run \
+            --name patched-rust-container \
+            patched-rust-build
 
-      - name: Configure Rust
+      - name: Copy distributable artifacts
         run: |
-          cd rust
+          mkdir -p dist
 
-          cat > config.toml <<EOF
-          [llvm]
-          download-ci-llvm = true
-
-          [build]
-          extended = true
-
-          [rust]
-          codegen-units = 1
-          EOF
-
-      - name: Find TLS flag
-        run: |
-          cd rust
-          grep -R "tls-model=initial-exec" src || true
-
-      - name: Patch TLS flag
-        run: |
-          cd rust
-          sed -i '/tls-model=initial-exec/d' src/bootstrap/src/bin/rustc.rs
-
-      - name: Verify patch
-        run: |
-          cd rust
-          grep -R "tls-model=initial-exec" src || true
-
-      - name: Build distributable Rust toolchain
-        run: |
-          cd rust
-          python3 x.py dist --stage 2 rustc rust-std cargo
+          docker cp \
+            patched-rust-container:/workspace/rust/build/dist \
+            ./dist
 
       - name: Upload toolchain artifacts
         uses: actions/upload-artifact@v4
         with:
           name: patched-rust-toolchain
-          path: rust/build/dist
+          path: dist
           retention-days: 1
 
   validate-toolchain:
     needs: build-rust
     runs-on: ubuntu-latest
 
-    container:
-      image: ubuntu:24.04
-
     steps:
-      - name: Install dependencies
-        run: |
-          apt update
-          apt install -y \
-            curl \
-            build-essential \
-            xz-utils
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Download toolchain
+      - name: Download toolchain artifacts
         uses: actions/download-artifact@v4
         with:
           name: patched-rust-toolchain
-          path: /toolchain
+          path: toolchain
 
-      - name: Extract toolchain artifacts
+      - name: Build validation Docker image
         run: |
-          mkdir -p /rust-dist
+          docker build \
+            -f docker/Dockerfile.validate \
+            -t patched-rust-validate .
 
-          tar -xf /toolchain/rustc-*.tar.xz -C /rust-dist
-          tar -xf /toolchain/rust-std-*.tar.xz -C /rust-dist
-          tar -xf /toolchain/cargo-*.tar.xz -C /rust-dist
-
-      - name: Install rustup
+      - name: Run validation
         run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y
-
-      - name: Add cargo to PATH
-        run: |
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-
-      - name: Install patched toolchain
-        run: |
-          mkdir -p /patched-toolchain
-
-          /rust-dist/rustc-*/install.sh --prefix=/patched-toolchain
-          /rust-dist/rust-std-*/install.sh --prefix=/patched-toolchain
-          /rust-dist/cargo-*/install.sh --prefix=/patched-toolchain
-
-      - name: Link patched toolchain
-        run: |
-          rustup toolchain link patched /patched-toolchain
-
-      - name: Activate toolchain
-        run: |
-          rustup override set patched
-
-      - name: Validate toolchain
-        run: |
-          rustc -Vv
-          cargo -V
-
-          cargo new hello
-          cd hello
-
-          cat > src/main.rs <<EOF
-          fn main() {
-              println!("patched rust toolchain works");
-          }
-          EOF
-
-          cargo build -v
-          ./target/debug/hello
+          docker run \
+            -v ${{ github.workspace }}/toolchain:/toolchain \
+            patched-rust-validate
