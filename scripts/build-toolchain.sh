@@ -10,7 +10,9 @@ apt install -y \
     python3 \
     build-essential \
     cmake \
-    ninja-build
+    ninja-build \
+    pkg-config \
+    libssl-dev 
 
 git clone https://github.com/rust-lang/rust.git
 cd rust
