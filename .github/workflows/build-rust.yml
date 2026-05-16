@@ -28,6 +28,7 @@ jobs:
       - name: Configure Rust
         run: |
           cd rust
+
           cat > config.toml <<EOF
           [llvm]
           download-ci-llvm = true
@@ -54,16 +55,17 @@ jobs:
           cd rust
           grep -R "tls-model=initial-exec" src || true
 
-      - name: Build Rust
+      - name: Build distributable Rust toolchain
         run: |
           cd rust
-          python3 x.py build --stage 2 compiler/rustc
+          python3 x.py dist --stage 2 rustc rust-std cargo
 
-      - name: Upload toolchain
+      - name: Upload toolchain artifacts
         uses: actions/upload-artifact@v4
         with:
           name: patched-rust-toolchain
-          path: rust/build/x86_64-unknown-linux-gnu/stage2
+          path: rust/build/dist
+          retention-days: 1
 
   validate-toolchain:
     needs: build-rust
@@ -76,7 +78,10 @@ jobs:
       - name: Install dependencies
         run: |
           apt update
-          apt install -y curl build-essential
+          apt install -y \
+            curl \
+            build-essential \
+            xz-utils
 
       - name: Download toolchain
         uses: actions/download-artifact@v4
@@ -84,11 +89,13 @@ jobs:
           name: patched-rust-toolchain
           path: /toolchain
 
-      - name: Fix permissions
+      - name: Extract toolchain artifacts
         run: |
-          chmod -R 755 /toolchain || true
-          find /toolchain -type f -name "rustc" -exec chmod +x {} \;
-          find /toolchain -type f -name "cargo" -exec chmod +x {} \;
+          mkdir -p /rust-dist
+
+          tar -xf /toolchain/rustc-*.tar.xz -C /rust-dist
+          tar -xf /toolchain/rust-std-*.tar.xz -C /rust-dist
+          tar -xf /toolchain/cargo-*.tar.xz -C /rust-dist
 
       - name: Install rustup
         run: |
@@ -98,9 +105,17 @@ jobs:
         run: |
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
+      - name: Install patched toolchain
+        run: |
+          mkdir -p /patched-toolchain
+
+          /rust-dist/rustc-*/install.sh --prefix=/patched-toolchain
+          /rust-dist/rust-std-*/install.sh --prefix=/patched-toolchain
+          /rust-dist/cargo-*/install.sh --prefix=/patched-toolchain
+
       - name: Link patched toolchain
         run: |
-          rustup toolchain link patched /toolchain
+          rustup toolchain link patched /patched-toolchain
 
       - name: Activate toolchain
         run: |
