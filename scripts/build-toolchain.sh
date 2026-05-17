@@ -36,4 +36,4 @@ sed -i '/tls-model=initial-exec/d' src/bootstrap/src/bin/rustc.rs
 
 grep -R "tls-model=initial-exec" src || true
 
-python3 x.py dist --stage 2 rustc rust-std cargo
+python3 x.py dist --stage 2 rustc rust-std cargo rustc-dev

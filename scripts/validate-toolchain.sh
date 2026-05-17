@@ -21,10 +21,12 @@ mkdir -p /patched-toolchain
 tar -xf /toolchain/dist/rustc-*.tar.xz -C /rust-dist
 tar -xf /toolchain/dist/rust-std-*.tar.xz -C /rust-dist
 tar -xf /toolchain/dist/cargo-*.tar.xz -C /rust-dist
+tar -xf /toolchain/dist/rustc-dev-*.tar.xz -C /rust-dist
 
 /rust-dist/rustc-*/install.sh --prefix=/patched-toolchain
 /rust-dist/rust-std-*/install.sh --prefix=/patched-toolchain
 /rust-dist/cargo-*/install.sh --prefix=/patched-toolchain
+/rust-dist/rustc-dev-*/install.sh --prefix=/patched-toolchain
 
 rustup toolchain link patched /patched-toolchain
 rustup override set patched
