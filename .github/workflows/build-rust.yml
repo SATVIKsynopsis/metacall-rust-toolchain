@@ -13,7 +13,7 @@ jobs:
 
       - name: Build toolchain Docker image
         run: |
-          docker build \
+          docker build --no-cache \
             -f docker/Dockerfile.build \
             -t patched-rust-build .
 
@@ -54,7 +54,7 @@ jobs:
 
       - name: Build validation Docker image
         run: |
-          docker build \
+          docker build --no-cache \
             -f docker/Dockerfile.validate \
             -t patched-rust-validate .
 
