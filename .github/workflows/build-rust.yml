@@ -60,7 +60,7 @@ jobs:
 
       - name: Run validation
         run: |
-         docker run \
-           -v ${{ github.workspace }}/toolchain:/toolchain \
+          docker run \
+            -v ${{ github.workspace }}/toolchain:/toolchain \
             patched-rust-validate \
             bash /validate-toolchain.sh
