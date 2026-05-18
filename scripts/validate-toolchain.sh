@@ -31,6 +31,9 @@ tar -xf /toolchain/dist/rustc-dev-*.tar.xz -C /rust-dist
 # Debug installed compiler internals
 find /patched-toolchain -name "librustc_driver*.so" 2>/dev/null
 find /patched-toolchain -name "rustc_middle*.rlib" 2>/dev/null
+find /patched-toolchain -name "rustc_middle*"
+find /patched-toolchain -name "rustc_hir*"
+find /patched-toolchain -name "rustc_interface*"
 ls /patched-toolchain/lib/rustlib/ 2>/dev/null || echo "no rustlib dir"
 
 rustup toolchain link patched /patched-toolchain

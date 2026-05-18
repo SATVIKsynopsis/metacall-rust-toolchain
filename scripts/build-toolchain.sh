@@ -28,9 +28,7 @@ extended = true
 
 [rust]
 codegen-units = 1
-
-[rust-analyzer]
-rustc_private = true
+download-rustc = false
 EOF
 
 grep -R "tls-model=initial-exec" src || true
