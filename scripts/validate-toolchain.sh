@@ -21,15 +21,15 @@ for f in \
     /toolchain/dist/rustc-*-x86_64-unknown-linux-gnu.tar.xz \
     /toolchain/dist/rust-std-*.tar.xz \
     /toolchain/dist/cargo-*.tar.xz \
-    /toolchain/dist/rustc-dev-*.tar.xz
+    /toolchain/dist/rustc-dev-*-x86_64-unknown-linux-gnu.tar.xz
 do
     tar -xf "$f" -C /rust-dist
 done
 
-/rust-dist/rustc-*/install.sh --prefix=/patched-toolchain
+/rust-dist/rustc-*-x86_64-unknown-linux-gnu/install.sh --prefix=/patched-toolchain
 /rust-dist/rust-std-*/install.sh --prefix=/patched-toolchain
 /rust-dist/cargo-*/install.sh --prefix=/patched-toolchain
-/rust-dist/rustc-dev-*/install.sh --prefix=/patched-toolchain
+/rust-dist/rustc-dev-*-x86_64-unknown-linux-gnu/install.sh --prefix=/patched-toolchain
 
 find /patched-toolchain -name "librustc_driver*.so" 2>/dev/null
 find /patched-toolchain -name "rustc_middle*" 2>/dev/null
