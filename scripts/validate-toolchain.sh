@@ -26,7 +26,9 @@ do
     tar -xf "$f" -C /rust-dist
 done
 
-/rust-dist/rustc-*-x86_64-unknown-linux-gnu/install.sh --prefix=/patched-toolchain
+RUSTC_DIR=$(find /rust-dist -maxdepth 1 -type d -name "rustc-*" ! -name "rustc-dev-*")
+
+"$RUSTC_DIR/install.sh" --prefix=/patched-toolchain
 /rust-dist/rust-std-*/install.sh --prefix=/patched-toolchain
 /rust-dist/cargo-*/install.sh --prefix=/patched-toolchain
 /rust-dist/rustc-dev-*-x86_64-unknown-linux-gnu/install.sh --prefix=/patched-toolchain
