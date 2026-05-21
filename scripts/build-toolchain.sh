@@ -37,4 +37,4 @@ sed -i '/tls-model=initial-exec/d' src/bootstrap/src/bin/rustc.rs
 
 grep -R "tls-model=initial-exec" src || true
 
-python3 x.py dist bootstrap --include-default-paths
+python3 x.py dist bootstrap cargo clippy rustfmt --include-default-paths
