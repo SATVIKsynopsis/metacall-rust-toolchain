@@ -43,5 +43,7 @@ ls /patched-toolchain/lib/rustlib/ 2>/dev/null || echo "no rustlib dir"
 rustup toolchain link patched /patched-toolchain
 rustup override set patched
 
+rustup component add clippy rustfmt
+
 rustc -Vv
 cargo -V
